@@ -21,8 +21,10 @@ Your CLI should show packages being installed then the Cursive TUI should pop up
 
 Open up two or more CLIs to simulate multiple users chatting in one channel!
 
-## Creators
+## Contributors
 [Samba Diallo](https://www.pubnub.com/blog/author/samba_diallo/?devrel_gh=sambarustchat)
+
+Special thank you to [Jay Oster](https://github.com/parasyte) for both explaining and contributing!
 
 
 
