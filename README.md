@@ -9,6 +9,12 @@ The main thread handles creating our UI using Cursive. It calls the publish func
 ## What is PubNub?
 [PubNub](https://www.pubnub.com/?devrel_gh=sambarustchat) is a Realtime Data Streaming Network, essentially a Pub/Sub provider. They provide over 75 SDKs in addoition to their HTTP REST API. They have a huge free trial that allows users to send up to a million messages a month for free. 
 
+**Sign up for PubNub click here:**
+
+<a href="https://dashboard.pubnub.com/signup?devrel_gh=YOUR-REPO-NAME">
+    <img alt="PubNub Signup" src="https://i.imgur.com/og5DDjf.png" width=260 height=97/>
+</a>
+
 ## Why RustyChat?
 I wanted to create a Pub/Sub project in Rust and I think a multi user chat is a great demonstration of Pub/Sub. The concepts behind this project can be used towards any use case where one would want to publish and subscribe to channels. I soon want to integrate this into a Web Assembly application. 
 
