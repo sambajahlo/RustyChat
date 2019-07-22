@@ -11,14 +11,18 @@ The main thread handles creating our UI using Cursive. It calls the publish func
 
 **Sign up for PubNub click here:**
 
-<a href="https://dashboard.pubnub.com/signup?devrel_gh=YOUR-REPO-NAME">
-    <img alt="PubNub Signup" src="https://i.imgur.com/og5DDjf.png" width=260 height=97/>
-</a>
+
 
 ## Why RustyChat?
 I wanted to create a Pub/Sub project in Rust and I think a multi user chat is a great demonstration of Pub/Sub. The concepts behind this project can be used towards any use case where one would want to publish and subscribe to channels. I soon want to integrate this into a Web Assembly application. 
 
 ## Installation
+Sign up for PubNub to obtain API keys
+
+<a href="https://dashboard.pubnub.com/signup?devrel_gh=YOUR-REPO-NAME">
+    <img alt="PubNub Signup" src="https://i.imgur.com/og5DDjf.png" width=260 height=97/>
+</a>
+
 Use ```curl https://sh.rustup.rs -sSf | sh``` inside your command line interface to install Rust using rustup
 
 Next run ```cargo run``` while inside of the folder containing cargo.toml
