@@ -23,9 +23,11 @@ Sign up for PubNub to obtain API keys
     <img alt="PubNub Signup" src="https://i.imgur.com/og5DDjf.png" width=260 height=97/>
 </a>
 
-Use ```curl https://sh.rustup.rs -sSf | sh``` inside your command line interface to install Rust using rustup
+- [ ] Replace "INSERT_PUB_KEY_HERE" and "INSERT_SUB_KEY_HERE" with your PubNub keys
 
-Next run ```cargo run``` while inside of the folder containing cargo.toml
+- [ ] Use ```curl https://sh.rustup.rs -sSf | sh``` inside your command line interface to install Rust using rustup
+
+- [ ] Next run ```cargo run``` while inside of the folder containing cargo.toml
 
 Your CLI should show packages being installed then the Cursive TUI should pop up asking for a username and channel name. 
 
