@@ -6,37 +6,56 @@ use std::sync::mpsc::{channel,Sender};
 use percent_encoding::{percent_encode, PATH_SEGMENT_ENCODE_SET};
 use cursive::align::HAlign;
 use cursive::traits::*;
-use custom_error::custom_error;
 
+use custom_error::custom_error;
 use cursive::views::{Dialog, TextView,EditView,DummyView,LinearLayout,ScrollView, BoxView};
 use cursive::view::ScrollStrategy;
 
+// match source{
+//             source.is_timeout() => "Timed Out",
+//             source.is_serialization() => "Serialization Error",
+//             source.is_server_error() => "Server Error",
+//             source.is_client_error() => "Client Error",
+//             source.is_redirect() => "Redirect Error",
+//             source.is_http() => "HTTP Error",
+//             _ => "Reqwest Error",
+//         }
 
-custom_error!{PubNubError
-    JSONError{source: serde_json::error::Error} = "JSON Error",
-    ReqwestError{source: reqwest::Error} = "Reqwest Error"
+// match source.is_timeout(){
+//             true => "Timed Out",
+//             _ => "Reqwest Error",
+//         }
+
+custom_error!{ChatError
+    JSONError{source: serde_json::error::Error} = @{
+        source.to_string()
+    },
+    ReqwestError{source: reqwest::Error } = @{
+        source.to_string().split(": ").collect::<Vec<&str>>()[1]
+    },
+    Unknown = "unknown error"
 }
 
 //These next structs are to deserialize the JSON responses into
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize)]
 struct Response {
     t : Time,
     m : Vec<MessageResp>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize)]
 struct MessageResp {
     d: Message,
     c: String,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize)]
 struct Time {
     t: String,
 }
 
 //Message is a sub object of MessageResp
-#[derive(Serialize,Deserialize, Debug, Clone)]
+#[derive(Serialize,Deserialize)]
 struct Message {
     uuid: String,
     text: String,
@@ -46,7 +65,7 @@ struct Message {
 fn main() {
     //We create two channels, one to pass the channel name to the subscribe function
     //Another to send new messages from the subscribe function to the UI
-    let (channe_sender, channel_receiver)  = channel();
+    let (channel_sender, channel_receiver)  = channel();
     let (mut msg_sender, msg_receiver)  = channel();
 
     //Create a seperate thread, this allows us to have a subscribe loop that wont stop the UI from updating
@@ -54,24 +73,33 @@ fn main() {
         let mut time_token = "".to_string();
         println!("Subscribed to channel. Enter messages to publish!" );
         //We wait for the UI to send us the channel name
-        let channel_name : String = channel_receiver.recv().unwrap();
+        let test_channel = channel_receiver.recv();
+        if test_channel.is_ok() {
+            let channel_name : String = test_channel.unwrap();
 
-        //Once we have the channel name, we create a loop that lets us request messages
-        loop{
-            let result :Result<String, PubNubError>  = subscribe(&time_token, &mut msg_sender, &channel_name);
-            if  result.is_ok(){
-                //We update the time_token var to get all messages that happened after that specific time.
-                time_token = result.ok().unwrap();
-            }else {
-                let err = result.err().unwrap();
-                //If the request times out, thats okay, we just restart it with that same timetoken, looking for new messages.
-                if err.to_string() != "timed out" {
-                    println!("Error: {:?}", err.to_string() );
-                    break;
+            //Once we have the channel name, we create a loop that lets us request messages
+            loop{
+                let result :Result<String, ChatError>  = subscribe(&time_token, &mut msg_sender, &channel_name);
+                if  result.is_ok(){
+                    //We update the time_token var to get all messages that happened after that specific time.
+                    time_token = result.ok().unwrap();
+                }else if result.is_err(){ 
+                    
+                    let err = result.unwrap_err();
+                    //If the request times out, thats okay, we just restart it with that same timetoken, looking for new messages.
+                    if err.to_string() != "timed out" {
+                        println!("Error: {:?} \nPlease restart application to try again.", err.to_string() );
+                        break;
+                    }
                 }
             }
         }
+
+        
     });
+
+
+
 
     
     // Creates the cursive root - required for every application.
@@ -105,12 +133,16 @@ fn main() {
                 view.get_content()
             }).unwrap();
             //Checking if either input is empty. 
+            
             if username.is_empty() {
                 s.add_layer(Dialog::info(format!("Please enter a username !")));
-            } else if channel.is_empty() {
-                s.add_layer(Dialog::info(format!("Please enter a channel !")));
             } else{
-                channe_sender.send(channel.to_string()).unwrap();
+                let mut new_channel = channel.to_string();
+                if channel.is_empty() {
+                    new_channel = "global".to_string();
+                }
+
+                channel_sender.send(new_channel);
                 s.pop_layer();
                 s.add_layer(
                     BoxView::with_fixed_size((40,40),
@@ -145,22 +177,37 @@ fn main() {
                                     view.get_content()
                                 
                                 }).unwrap();
-                                let result = publish(message.to_string(), username.to_string(), channel.to_string());
-                                if result.is_err(){
-                                    //If there was an error then we say that there is one, and don't do anything.
-                                    s.add_layer(Dialog::new()
+                                let mut new_channel_2 = channel.to_string();
+                                if channel.is_empty() {
+                                    new_channel_2 = "global".to_string();
+                                }
+                                if message.is_empty(){
+                                     s.add_layer(Dialog::new()
                                         .title("PubNub Chat")
-                                        .content(TextView::new("Error Publishing!"))
+                                        .content(TextView::new("Please enter a message!!"))
                                         .button("Okay", |s| {
                                             s.pop_layer();
                                         })
                                     )
                                 }else{
-                                    //Clear out the EditView.
-                                    s.call_on_id("message",|view: &mut EditView| {
-                                        view.set_content("")
-                                    }).unwrap();
+                                    let result = publish(message.to_string(), username.to_string(), new_channel_2);
+                                    if result.is_err(){
+                                        //If there was an error then we say that there is one, and don't do anything.
+                                        s.add_layer(Dialog::new()
+                                            .title("PubNub Chat")
+                                            .content(TextView::new("Error Publishing!"))
+                                            .button("Okay", |s| {
+                                                s.pop_layer();
+                                            })
+                                        )
+                                    }else{
+                                        //Clear out the EditView.
+                                        s.call_on_id("message",|view: &mut EditView| {
+                                            view.set_content("")
+                                        }).unwrap();
+                                    }
                                 }
+                                
                             }) 
                             .button("Quit", |s| s.quit()) 
                     )    
@@ -198,7 +245,7 @@ fn main() {
     } 
 }
  
-fn subscribe( time: &str, msg_sender: &mut Sender<String>, channel: &str) -> Result<String, PubNubError> {
+fn subscribe( time: &str, msg_sender: &mut Sender<String>, channel: &str) -> Result<String, ChatError> {
     //Format the URL
     let channel = channel.to_string();
     let mut url = format!("https://{host}/v2/subscribe/{subkey}/{channel}/0/",
@@ -224,7 +271,7 @@ fn subscribe( time: &str, msg_sender: &mut Sender<String>, channel: &str) -> Res
     Ok(time.to_string())
 }
 
-fn publish(text: String, uuid: String, channel: String) -> Result<(), PubNubError> {
+fn publish(text: String, uuid: String, channel: String) -> Result<(), ChatError> {
     
     let message = Message{
         uuid, 
