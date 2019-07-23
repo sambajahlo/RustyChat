@@ -1,6 +1,4 @@
 # RustyChat
-Chat client made using Rust and Cursive
-# RustyChat
 Chat client made using Rust, Cursive, and PubNub.
 
 ## What is RustyChat?
