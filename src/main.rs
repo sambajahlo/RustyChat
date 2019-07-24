@@ -11,21 +11,6 @@ use custom_error::custom_error;
 use cursive::views::{Dialog, TextView,EditView,DummyView,LinearLayout,ScrollView, BoxView};
 use cursive::view::ScrollStrategy;
 
-// match source{
-//             source.is_timeout() => "Timed Out",
-//             source.is_serialization() => "Serialization Error",
-//             source.is_server_error() => "Server Error",
-//             source.is_client_error() => "Client Error",
-//             source.is_redirect() => "Redirect Error",
-//             source.is_http() => "HTTP Error",
-//             _ => "Reqwest Error",
-//         }
-
-// match source.is_timeout(){
-//             true => "Timed Out",
-//             _ => "Reqwest Error",
-//         }
-
 custom_error!{ChatError
     JSONError{source: serde_json::error::Error} = @{
         source.to_string()
@@ -60,7 +45,6 @@ struct Message {
     uuid: String,
     text: String,
 }
-
 
 fn main() {
     //We create two channels, one to pass the channel name to the subscribe function
@@ -98,10 +82,6 @@ fn main() {
         
     });
 
-
-
-
-    
     // Creates the cursive root - required for every application.
     let mut siv = Cursive::default();
     //First layer - get username and channel
@@ -145,7 +125,7 @@ fn main() {
                 channel_sender.send(new_channel);
                 s.pop_layer();
                 s.add_layer(
-                    BoxView::with_fixed_size((40,40),
+                    BoxView::with_fixed_size((40,20),
                         Dialog::new()
                             .title("PubNub Chat")
                             .content(
@@ -158,7 +138,7 @@ fn main() {
                                         .child(DummyView.fixed_height(1))
                                         //Add in a certain amount of dummy views, to make the new messages appear at the bottom
                                         .with(|messages| {
-                                            for _ in 0..33 {
+                                            for _ in 0..13 {
                                                 messages.add_child(DummyView.fixed_height(1));
                                             }
                                         })
@@ -234,7 +214,7 @@ fn main() {
                 needs_refresh = true;
                 message_count += 1;
                 messages.add_child(TextView::new(m));
-                if message_count <= 34{
+                if message_count <= 14{
                     messages.remove_child(0);
                 }
             });
