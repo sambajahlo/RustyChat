@@ -1,5 +1,6 @@
 # RustyChat
 Chat client made using Rust, Cursive, and PubNub.
+![rustychat gif](https://raw.githubusercontent.com/SambaDialloB/RustyChat/master/rustychat.gif)
 
 ## What is RustyChat?
 RustyChat is a realtime chat using the [Rust language](https://www.rust-lang.org/), [Cursive](https://github.com/gyscos/cursive) as a Terminal UI, and the [PubNub REST API](https://www.pubnub.com/http-rest-push-api/?devrel_gh=sambarustchat) to send and receive messages. 
