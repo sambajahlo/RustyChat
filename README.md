@@ -7,7 +7,7 @@ I used a seperate thread to run a subscribe loop that long polls PubNub for new 
 The main thread handles creating our UI using Cursive. It sends the channel name to the subscribe thread, and then shows the channel UI. When the user sends a message, we publish the new message to the channel we're in  and also checks for more information to be sent to the UI.
 
 Here is a diagram of how the app works!
-![rustychat diagram](HERE IT IS)
+![rustychat diagram](https://raw.githubusercontent.com/SambaDialloB/RustyChat/master/diagram%20rust.png)
 
 ## What is PubNub?
 [PubNub](https://www.pubnub.com/?devrel_gh=sambarustchat) is a Realtime Data Streaming Network, essentially a Pub/Sub provider. They provide over 75 SDKs in addoition to their HTTP REST API. They have a huge free trial that allows users to send up to a million messages a month for free. 
