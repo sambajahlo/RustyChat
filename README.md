@@ -4,7 +4,7 @@ Chat client made using Rust, Cursive, and PubNub.
 
 ## What is RustyChat?
 RustyChat is a realtime chat using the [Rust language](https://www.rust-lang.org/), [Cursive](https://github.com/gyscos/cursive) as a Terminal UI, and the [PubNub REST API](https://www.pubnub.com/http-rest-push-api/?devrel_gh=sambarustchat) to send and receive messages. 
-I used a seperate thread to run a subscribe loop that long polls PubNub for new messages. It will try to receive messages using a time token until the request times out or we get a message. The next request either has an updated time token if we got a response back or will redo that same request if we timed out. 
+I used a separate thread to run a subscribe loop that long polls PubNub for new messages. It will try to receive messages using a time token until the request times out or we get a message. The next request either has an updated time token if we got a response back or will redo that same request if we timed out. 
 The main thread handles creating our UI using Cursive. It sends the channel name to the subscribe thread, and then shows the channel UI. When the user sends a message, we publish the new message to the channel we're in  and also checks for more information to be sent to the UI.
 
 Here is a diagram of how the app works!
